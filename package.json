@@ -1,0 +1,32 @@
+{
+  "type": "module",
+  "scripts": {
+    "register": "npx tsx scripts/register-commands.ts",
+    "build": "npx tsx scripts/build.ts && npx cdk synth",
+    "lint": "npx eslint .",
+    "format": "npx psvx",
+    "bootstrap": "npx cdk bootstrap",
+    "deploy": "npm run build && npx cdk deploy --require-approval never",
+    "destroy": "npx cdk destroy --all"
+  },
+  "prettier": "@jill64/prettier-config",
+  "devDependencies": {
+    "@jill64/eslint-config-ts": "2.0.11",
+    "@jill64/prettier-config": "1.0.0",
+    "@types/node": "22.13.5",
+    "aws-cdk-lib": "2.180.0",
+    "constructs": "10.4.2",
+    "discord.js": "14.18.0",
+    "dotenv": "16.4.7",
+    "esbuild": "0.25.0",
+    "kysely": "0.27.5",
+    "kysely-solarsystem": "0.0.13",
+    "tsx": "4.19.3",
+    "typescript": "5.7.3"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild"
+    ]
+  }
+}
