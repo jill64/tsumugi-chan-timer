@@ -1,5 +1,5 @@
 import dayjs from 'dayjs'
-import { Client, GatewayIntentBits, VoiceState } from 'discord.js'
+import { Client, GatewayIntentBits } from 'discord.js'
 import { Kysely } from 'kysely'
 import { SolarSystemDialect } from 'kysely-solarsystem'
 import { env } from 'node:process'
@@ -87,68 +87,92 @@ const getOrInsertUserGuildChannel = async (
     .executeTakeFirstOrThrow()
 }
 
+const connect = async ({
+  channelId,
+  memberId,
+  guildId
+}: {
+  guildId: string
+  memberId: string
+  channelId: string
+}) => {
+  if (!channelId || !memberId) {
+    return
+  }
+
+  const [user, user_guild_channel] = await Promise.all([
+    getOrInsertUser(memberId),
+    getOrInsertUserGuildChannel(memberId, guildId)
+  ])
+
+  const channels = new Set<string>(JSON.parse(user.channels))
+
+  if (!channels.has(channelId)) {
+    return
+  }
+
+  await db
+    .updateTable('user')
+    .set('start', new Date().toISOString())
+    .where('id', '=', memberId)
+    .execute()
+}
+
+const disconnect = async ({
+  channelId,
+  memberId,
+  guildId
+}: {
+  guildId: string
+  memberId: string
+  channelId: string
+}) => {
+  if (!channelId || !memberId) {
+    return
+  }
+
+  const [user, user_guild_channel] = await Promise.all([
+    getOrInsertUser(memberId),
+    getOrInsertUserGuildChannel(memberId, guildId)
+  ])
+
+  if (!user.start) {
+    return
+  }
+
+  const channels = new Set<string>(JSON.parse(user.channels))
+
+  if (!channels.has(channelId)) {
+    return
+  }
+
+  const start = dayjs(user.start)
+  const diff = dayjs().diff(start, 'minute')
+  const all = user.all + diff
+
+  await db
+    .updateTable('user')
+    .set('all', all)
+    .set('start', '')
+    .where('id', '=', memberId)
+    .execute()
+}
+
 client.on('voiceStateUpdate', async (oldState, newState) => {
-  const connect = async (state: VoiceState) => {
-    if (!state.channelId || !state.member) {
-      return
-    }
-
-    const [user, user_guild_channel] = await Promise.all([
-      getOrInsertUser(state.member.id),
-      getOrInsertUserGuildChannel(state.member.id, state.guild.id)
-    ])
-
-    const channels = new Set<string>(JSON.parse(user.channels))
-
-    if (!channels.has(state.channelId)) {
-      return
-    }
-
-    await db
-      .updateTable('user')
-      .set('start', new Date().toISOString())
-      .where('id', '=', state.member.id)
-      .execute()
-  }
-
-  const disconnect = async (state: VoiceState) => {
-    if (!state.channelId || !state.member) {
-      return
-    }
-
-    const [user, user_guild_channel] = await Promise.all([
-      getOrInsertUser(state.member.id),
-      getOrInsertUserGuildChannel(state.member.id, state.guild.id)
-    ])
-
-    if (!user.start) {
-      return
-    }
-
-    const channels = new Set<string>(JSON.parse(user.channels))
-
-    if (!channels.has(state.channelId)) {
-      return
-    }
-
-    const start = dayjs(user.start)
-    const diff = dayjs().diff(start, 'minute')
-    const all = user.all + diff
-
-    await db
-      .updateTable('user')
-      .set('all', all)
-      .set('start', '')
-      .where('id', '=', state.member.id)
-      .execute()
-  }
-
   if (!oldState.channelId && newState.channelId) {
-    await connect(newState)
+    await connect({
+      channelId: newState.channelId,
+      memberId: newState.member?.id ?? '',
+      guildId: newState.guild.id
+    })
   }
 
   if (oldState.channelId && !newState.channelId) {
-    await disconnect(oldState)
+    await disconnect({
+      channelId: oldState.channelId,
+      memberId: oldState.member?.id ?? '',
+      guildId: oldState.guild.id
+    })
   }
 
   if (
@@ -156,8 +180,17 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
     newState.channelId &&
     oldState.channelId !== newState.channelId
   ) {
-    await disconnect(oldState)
-    await connect(newState)
+    await disconnect({
+      channelId: oldState.channelId,
+      memberId: oldState.member?.id ?? '',
+      guildId: oldState.guild.id
+    })
+
+    await connect({
+      channelId: newState.channelId,
+      memberId: newState.member?.id ?? '',
+      guildId: newState.guild.id
+    })
   }
 })
 
@@ -192,6 +225,12 @@ client.on('interactionCreate', async (interaction) => {
       .where('id', '=', interaction.user.id)
       .execute()
 
+    await connect({
+      channelId: vcId,
+      memberId: interaction.user.id,
+      guildId: interaction.guildId ?? ''
+    })
+
     await interaction.editReply('登録完了したよ！')
 
     return
@@ -209,6 +248,12 @@ client.on('interactionCreate', async (interaction) => {
     }
 
     channels.delete(vcId)
+
+    await disconnect({
+      channelId: vcId,
+      memberId: interaction.user.id,
+      guildId: interaction.guildId ?? ''
+    })
 
     await db
       .updateTable('user')
