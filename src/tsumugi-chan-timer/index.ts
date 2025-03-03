@@ -54,6 +54,38 @@ const getOrInsertUser = async (userId: string) => {
     .executeTakeFirst()
 }
 
+const getOrInsertUserGuildChannel = async (
+  userId: string,
+  guild_id: string
+) => {
+  const user_guild_channel = await db
+    .selectFrom('user_guild_channel')
+    .selectAll()
+    .where('id', '=', userId)
+    .where('guild_id', '=', guild_id)
+    .executeTakeFirst()
+
+  if (user_guild_channel) {
+    return user_guild_channel
+  }
+
+  await db
+    .insertInto('user_guild_channel')
+    .values({
+      id: userId,
+      guild_id,
+      channel_id: ''
+    })
+    .execute()
+
+  return await db
+    .selectFrom('user_guild_channel')
+    .selectAll()
+    .where('id', '=', userId)
+    .where('guild_id', '=', guild_id)
+    .executeTakeFirst()
+}
+
 client.on('voiceStateUpdate', async (oldState, newState) => {
   // const connect = async (state: VoiceState) => {
   //   // if (
@@ -188,6 +220,66 @@ client.on('interactionCreate', async (interaction) => {
     await interaction.editReply(
       `あなたの累計作業時間は${hour}時間${minute}分だよ！`
     )
+  }
+
+  if (interaction.commandName === 'set') {
+    if (!interaction.guildId) {
+      await interaction.editReply('このコマンドはサーバー内で実行してね！')
+      return
+    }
+
+    const user_guild_channel = await getOrInsertUserGuildChannel(
+      interaction.user.id,
+      interaction.guildId
+    )
+
+    if (!user_guild_channel) {
+      await interaction.editReply(
+        '内部エラーが発生したみたい… もう一度試してみてね！'
+      )
+      return
+    }
+
+    await db
+      .updateTable('user_guild_channel')
+      .set('channel_id', interaction.channelId)
+      .where('id', '=', interaction.user.id)
+      .where('guild_id', '=', interaction.guildId)
+      .execute()
+    
+    await interaction.editReply('通知先をここに設定したよ！')
+
+    return
+  }
+
+  if (interaction.commandName === 'mute') {
+    if (!interaction.guildId) {
+      await interaction.editReply('このコマンドはサーバー内で実行してね！')
+      return
+    }
+
+    const user_guild_channel = await getOrInsertUserGuildChannel(
+      interaction.user.id,
+      interaction.guildId
+    )
+
+    if (!user_guild_channel) {
+      await interaction.editReply(
+        '内部エラーが発生したみたい… もう一度試してみてね！'
+      )
+      return
+    }
+
+    await db
+      .updateTable('user_guild_channel')
+      .set('channel_id', '')
+      .where('id', '=', interaction.user.id)
+      .where('guild_id', '=', interaction.guildId)
+      .execute()
+
+    await interaction.editReply('通知設定を解除したよ！')
+
+    return
   }
 })
 
