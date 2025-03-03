@@ -1,4 +1,5 @@
-import { Client, GatewayIntentBits } from 'discord.js'
+import dayjs from 'dayjs'
+import { Client, GatewayIntentBits, VoiceState } from 'discord.js'
 import { Kysely } from 'kysely'
 import { SolarSystemDialect } from 'kysely-solarsystem'
 import { env } from 'node:process'
@@ -51,7 +52,7 @@ const getOrInsertUser = async (userId: string) => {
     .selectFrom('user')
     .selectAll()
     .where('id', '=', userId)
-    .executeTakeFirst()
+    .executeTakeFirstOrThrow()
 }
 
 const getOrInsertUserGuildChannel = async (
@@ -83,67 +84,81 @@ const getOrInsertUserGuildChannel = async (
     .selectAll()
     .where('id', '=', userId)
     .where('guild_id', '=', guild_id)
-    .executeTakeFirst()
+    .executeTakeFirstOrThrow()
 }
 
 client.on('voiceStateUpdate', async (oldState, newState) => {
-  // const connect = async (state: VoiceState) => {
-  //   // if (
-  //   //   !state.channelId
-  //   //   // || !state.member
-  //   // ) {
-  //   //   return
-  //   // }
-  //   // await checkOrInsertUser(state.member.id)
-  //   // const channels = await db
-  //   //   .selectFrom('guild_channel')
-  //   //   .selectAll()
-  //   //   .where('guild_channel.guild_id', '=', state.guild.id)
-  //   //   .execute()
-  //   // if (!channels.find((channel) => channel.channel_id === state.channelId)) {
-  //   //   return
-  //   // }
-  //   await run(
-  //     db.insertInto('timestamp').values({
-  //       guild_id: state.guild.id,
-  //       channel_id: state.channelId ?? '',
-  //       user_id: state.member?.id ?? '',
-  //       start: new Date().toISOString(),
-  //       end: ''
-  //     })
-  //   )
-  // }
-  // const disconnect = async (state: VoiceState) => {
-  //   // if (
-  //   //   !state.channelId
-  //   //   // || !state.member
-  //   // ) {
-  //   //   return
-  //   // }
-  //   await checkOrInsertGuild(state.guild.id)
-  //   await run(
-  //     db
-  //       .updateTable('timestamp')
-  //       .set('end', new Date().toISOString())
-  //       .where('guild_id', '=', state.guild.id)
-  //       .where('channel_id', '=', state.channelId)
-  //       .where('user_id', '=', state.member?.id ?? '')
-  //       .where('end', '=', '')
-  //   )
-  // }
-  // if (!oldState.channelId && newState.channelId) {
-  //   await connect(newState)
-  // }
-  // if (oldState.channelId && !newState.channelId) {
-  //   await disconnect(oldState)
-  // }
-  // if (
-  //   oldState.channelId &&
-  //   newState.channelId &&
-  //   oldState.channelId !== newState.channelId
-  // ) {
-  //   await Promise.all([disconnect(oldState), connect(newState)])
-  // }
+  const connect = async (state: VoiceState) => {
+    if (!state.channelId || !state.member) {
+      return
+    }
+
+    const [user, user_guild_channel] = await Promise.all([
+      getOrInsertUser(state.member.id),
+      getOrInsertUserGuildChannel(state.member.id, state.guild.id)
+    ])
+
+    const channels = new Set<string>(JSON.parse(user.channels))
+
+    if (!channels.has(state.channelId)) {
+      return
+    }
+
+    await db
+      .updateTable('user')
+      .set('start', new Date().toISOString())
+      .where('id', '=', state.member.id)
+      .execute()
+  }
+
+  const disconnect = async (state: VoiceState) => {
+    if (!state.channelId || !state.member) {
+      return
+    }
+
+    const [user, user_guild_channel] = await Promise.all([
+      getOrInsertUser(state.member.id),
+      getOrInsertUserGuildChannel(state.member.id, state.guild.id)
+    ])
+
+    if (!user.start) {
+      return
+    }
+
+    const channels = new Set<string>(JSON.parse(user.channels))
+
+    if (!channels.has(state.channelId)) {
+      return
+    }
+
+    const start = dayjs(user.start)
+    const diff = dayjs().diff(start, 'minute')
+    const all = user.all + diff
+
+    await db
+      .updateTable('user')
+      .set('all', all)
+      .set('start', '')
+      .where('id', '=', state.member.id)
+      .execute()
+  }
+
+  if (!oldState.channelId && newState.channelId) {
+    await connect(newState)
+  }
+
+  if (oldState.channelId && !newState.channelId) {
+    await disconnect(oldState)
+  }
+
+  if (
+    oldState.channelId &&
+    newState.channelId &&
+    oldState.channelId !== newState.channelId
+  ) {
+    await disconnect(oldState)
+    await connect(newState)
+  }
 })
 
 client.on('interactionCreate', async (interaction) => {
@@ -152,13 +167,6 @@ client.on('interactionCreate', async (interaction) => {
   await interaction.deferReply()
 
   const user = await getOrInsertUser(interaction.user.id)
-
-  if (!user) {
-    await interaction.editReply(
-      '内部エラーが発生したみたい… もう一度試してみてね！'
-    )
-    return
-  }
 
   // @ts-expect-error TODO: Fix this
   const vcId = interaction.member.voice.channel.id as string | null
@@ -228,17 +236,7 @@ client.on('interactionCreate', async (interaction) => {
       return
     }
 
-    const user_guild_channel = await getOrInsertUserGuildChannel(
-      interaction.user.id,
-      interaction.guildId
-    )
-
-    if (!user_guild_channel) {
-      await interaction.editReply(
-        '内部エラーが発生したみたい… もう一度試してみてね！'
-      )
-      return
-    }
+    await getOrInsertUserGuildChannel(interaction.user.id, interaction.guildId)
 
     await db
       .updateTable('user_guild_channel')
@@ -246,7 +244,7 @@ client.on('interactionCreate', async (interaction) => {
       .where('id', '=', interaction.user.id)
       .where('guild_id', '=', interaction.guildId)
       .execute()
-    
+
     await interaction.editReply('通知先をここに設定したよ！')
 
     return
@@ -258,17 +256,7 @@ client.on('interactionCreate', async (interaction) => {
       return
     }
 
-    const user_guild_channel = await getOrInsertUserGuildChannel(
-      interaction.user.id,
-      interaction.guildId
-    )
-
-    if (!user_guild_channel) {
-      await interaction.editReply(
-        '内部エラーが発生したみたい… もう一度試してみてね！'
-      )
-      return
-    }
+    await getOrInsertUserGuildChannel(interaction.user.id, interaction.guildId)
 
     await db
       .updateTable('user_guild_channel')

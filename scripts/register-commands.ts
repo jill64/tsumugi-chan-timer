@@ -17,11 +17,11 @@ const commands = [
   },
   {
     name: 'set',
-    description: 'このコマンドを実行したチャンネルに通知を送信するよ！',
+    description: 'このコマンドを実行したチャンネルに通知を送信するよ！'
   },
   {
     name: 'mute',
-    description: '通知を送信しないようにするよ！',
+    description: '通知を送信しないようにするよ！'
   }
 ]
 
