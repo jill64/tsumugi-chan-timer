@@ -3,7 +3,7 @@
   "scripts": {
     "register": "npx tsx scripts/register-commands.ts",
     "build": "npx tsx scripts/build.ts && npx cdk synth",
-    "lint": "npx eslint .",
+    "lint": "eslint .",
     "format": "npx psvx",
     "bootstrap": "npx cdk bootstrap",
     "deploy": "npm run build && npx cdk deploy --require-approval never",
@@ -23,6 +23,7 @@
     "kysely-solarsystem": "0.0.13",
     "tsx": "4.19.3",
     "typescript": "5.7.3",
-    "dayjs": "1.11.13"
+    "dayjs": "1.11.13",
+    "eslint": "9.21.0"
   }
 }
