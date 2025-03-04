@@ -53,7 +53,7 @@ client.on('interactionCreate', async (interaction) => {
   const user = await getOrInsertUser(interaction.user.id)
 
   // @ts-expect-error TODO: Fix this
-  const vcId = interaction.member.voice.channel.id as string | null
+  const vcId = interaction.member?.voice?.channel?.id as string | null
 
   const channels = new Set<string>(JSON.parse(user.channels))
 
