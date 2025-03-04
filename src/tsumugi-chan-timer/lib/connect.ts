@@ -31,4 +31,6 @@ export const connect = async ({
     .set('start', new Date().toISOString())
     .where('id', '=', memberId)
     .execute()
+
+  return user_guild_channel
 }

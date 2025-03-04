@@ -41,4 +41,10 @@ export const disconnect = async ({
     .set('start', '')
     .where('id', '=', memberId)
     .execute()
+
+  return {
+    diff,
+    all,
+    user_guild_channel
+  }
 }
