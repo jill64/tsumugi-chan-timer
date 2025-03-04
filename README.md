@@ -12,10 +12,6 @@
 
 <!----- END GHOST DOCS HEADER ----->
 
-# tsumugi-chan-timer
-
-👜 VC Timer bot on Discord with Kasukabe Tsumugi
-
 <!----- BEGIN GHOST DOCS FOOTER ----->
 
 ## License
