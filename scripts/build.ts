@@ -17,7 +17,8 @@ const exec = (name: string) =>
         '@aws-sdk/*',
         'discord.js',
         'kysely',
-        'kysely-solarsystem'
+        'kysely-solarsystem',
+        'dayjs'
       ]
     }),
     cp(
