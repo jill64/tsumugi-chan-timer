@@ -1,8 +1,10 @@
-import { db } from './db.js'
+import { Kysely } from 'kysely'
+import { Database } from './schema.js'
 
 export const getOrInsertUserGuildChannel = async (
   userId: string,
-  guild_id: string
+  guild_id: string,
+  db: Kysely<Database>
 ) => {
   const user_guild_channel = await db
     .selectFrom('user_guild_channel')

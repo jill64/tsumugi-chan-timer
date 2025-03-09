@@ -5,11 +5,29 @@ import { env } from 'node:process'
 const commands = [
   {
     name: 'register',
-    description: '今入っているVCを測定対象にするよ！'
+    description: '選択したVCを測定対象にするよ！',
+    options: [
+      {
+        name: 'voice_channel',
+        description: '測定対象にするVCを選択してね！',
+        type: 7,
+        channel_types: [2],
+        required: true
+      }
+    ]
   },
   {
     name: 'unregister',
-    description: '今入っているVCを測定対象から外すよ！'
+    description: '選択したVCを測定対象から外すよ！',
+    options: [
+      {
+        name: 'voice_channel',
+        description: '測定対象から外すVCを選択してね！',
+        type: 7,
+        channel_types: [2],
+        required: true
+      }
+    ]
   },
   {
     name: 'show',
