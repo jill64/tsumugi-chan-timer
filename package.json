@@ -1,29 +1,24 @@
 {
   "type": "module",
   "scripts": {
-    "register": "npx tsx scripts/register-commands.ts",
-    "build": "npx tsx scripts/build.ts && npx cdk synth",
+    "register": "bun src/register.ts",
+    "build": "bunx wrangler deploy --dry-run",
     "lint": "eslint .",
-    "format": "npx psvx",
-    "bootstrap": "npx cdk bootstrap",
-    "deploy": "npm run build && npx cdk deploy --require-approval never",
-    "destroy": "npx cdk destroy --all"
+    "format": "bunx psvx"
   },
   "prettier": "@jill64/prettier-config",
   "devDependencies": {
     "@jill64/eslint-config-ts": "2.0.16",
     "@jill64/prettier-config": "1.0.0",
     "@types/node": "22.13.10",
-    "aws-cdk-lib": "2.182.0",
-    "constructs": "10.4.2",
-    "discord.js": "14.18.0",
     "dotenv": "16.4.7",
-    "esbuild": "0.25.0",
     "kysely": "0.27.6",
     "kysely-solarsystem": "0.0.13",
-    "tsx": "4.19.3",
     "typescript": "5.8.2",
     "dayjs": "1.11.13",
-    "eslint": "9.22.0"
+    "eslint": "9.22.0",
+    "discord-interactions": "4.1.1",
+    "itty-router": "5.0.18",
+    "discord.js": "14.18.0"
   }
 }

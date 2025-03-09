@@ -1,6 +1,7 @@
-import { db } from './db.js'
+import { Kysely } from 'kysely'
+import { Database } from './schema.js'
 
-export const getOrInsertUser = async (userId: string) => {
+export const getOrInsertUser = async (userId: string, db: Kysely<Database>) => {
   const user = await db
     .selectFrom('user')
     .selectAll()
