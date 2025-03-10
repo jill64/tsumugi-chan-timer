@@ -13,7 +13,7 @@
     "@types/node": "22.13.10",
     "dotenv": "16.4.7",
     "kysely": "0.27.6",
-    "kysely-solarsystem": "0.0.13",
+    "kysely-solarsystem": "0.1.2",
     "typescript": "5.8.2",
     "dayjs": "1.11.13",
     "eslint": "9.22.0",
