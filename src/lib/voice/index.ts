@@ -39,17 +39,21 @@ export const voice = async (
       return new Response('User not found on connect', { status: 400 })
     }
 
-    await connect({
+    const res = await connect({
       channelId: new_state.channel_id,
       memberId: new_state.user_id,
       db
     })
 
-    return await send_embed(
-      new_state.channel_id,
-      `${new_state.user_name}さん！${random_start_message()}`,
-      bot_token
-    )
+    if (res) {
+      return await send_embed(
+        new_state.channel_id,
+        `${new_state.user_name}さん！${random_start_message()}`,
+        bot_token
+      )
+    }
+
+    return new Response('Connected', { status: 200 })
   }
 
   if (old_state.channel_id && !new_state.channel_id) {
@@ -67,7 +71,7 @@ export const voice = async (
       return new Response('User data not found on disconnect', { status: 400 })
     }
 
-    return send_embed(
+    return await send_embed(
       old_state.channel_id,
       `${old_state.user_name}さん！${random_end_message()}
 今回の作業時間は**${res.diff}分**！
@@ -101,17 +105,21 @@ export const voice = async (
       )
     }
 
-    await connect({
+    const res = await connect({
       channelId: new_state.channel_id,
       memberId: new_state.user_id,
       db
     })
 
-    return await send_embed(
-      new_state.channel_id,
-      `${new_state.user_name}さん！${random_start_message()}`,
-      bot_token
-    )
+    if (res) {
+      return await send_embed(
+        new_state.channel_id,
+        `${new_state.user_name}さん！${random_start_message()}`,
+        bot_token
+      )
+    }
+
+    return new Response('Changed', { status: 200 })
   }
 
   return new Response('No Action')
