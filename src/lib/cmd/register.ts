@@ -30,7 +30,6 @@ export const register: Cmd = async (interaction, db) => {
   await connect({
     channelId: vcId,
     memberId: interaction.member.user.id,
-    guildId: interaction.guild_id,
     db
   })
 

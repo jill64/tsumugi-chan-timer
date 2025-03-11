@@ -32,14 +32,6 @@ const commands = [
   {
     name: 'show',
     description: 'あなたの累計作業時間を表示するよ！'
-  },
-  {
-    name: 'set',
-    description: 'このコマンドを実行したチャンネルに通知を送信するよ！'
-  },
-  {
-    name: 'mute',
-    description: '通知を送信しないようにするよ！'
   }
 ]
 

@@ -7,7 +7,7 @@ import { AutoRouter } from 'itty-router'
 import { Kysely } from 'kysely'
 import { SolarSystemDialect } from 'kysely-solarsystem'
 import crypto from 'node:crypto'
-import { mute, register, set, show, unregister } from './lib/cmd/index.js'
+import { register, show, unregister } from './lib/cmd/index.js'
 import type { Database } from './lib/schema.js'
 import { voice } from './lib/voice/index.js'
 import { Interaction } from './types/Interaction.js'
@@ -110,20 +110,6 @@ router.post('/', async (request, env: Env, ctx) => {
 
       case 'unregister': {
         const str = unregister(interaction, db)
-        ctx.waitUntil(reply(str))
-
-        return res
-      }
-
-      case 'mute': {
-        const str = mute(interaction, db)
-        ctx.waitUntil(reply(str))
-
-        return res
-      }
-
-      case 'set': {
-        const str = set(interaction, db)
         ctx.waitUntil(reply(str))
 
         return res
