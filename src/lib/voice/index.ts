@@ -39,22 +39,14 @@ export const voice = async (
       return new Response('User not found on connect', { status: 400 })
     }
 
-    const res = await connect({
+    await connect({
       channelId: new_state.channel_id,
       memberId: new_state.user_id,
-      guildId: new_state.guild_id,
       db
     })
 
-    if (!res) {
-      return new Response(
-        `User data not found on connect: ${JSON.stringify(new_state)}`,
-        { status: 400 }
-      )
-    }
-
     return await send_embed(
-      res.channel_id,
+      new_state.channel_id,
       `${new_state.user_name}さん！${random_start_message()}`,
       bot_token
     )
@@ -68,7 +60,6 @@ export const voice = async (
     const res = await disconnect({
       channelId: old_state.channel_id,
       memberId: old_state.user_id,
-      guildId: old_state.guild_id,
       db
     })
 
@@ -77,7 +68,7 @@ export const voice = async (
     }
 
     return send_embed(
-      res.user_guild_channel.channel_id,
+      old_state.channel_id,
       `${old_state.user_name}さん！${random_end_message()}
 今回の作業時間は**${res.diff}分**！
 総作業時間は**${Math.floor(res.all / 60)}時間${res.all % 60}分**だよ！`,
@@ -97,13 +88,12 @@ export const voice = async (
     const end = await disconnect({
       channelId: old_state.channel_id,
       memberId: old_state.user_id,
-      guildId: old_state.guild_id,
       db
     })
 
     if (end) {
       await send_embed(
-        end.user_guild_channel.channel_id,
+        old_state.channel_id,
         `${old_state.user_name}さん！${random_end_message()}
 今回の作業時間は**${end.diff}分**！
 総作業時間は**${Math.floor(end.all / 60)}時間${end.all % 60}分**だよ！`,
@@ -111,22 +101,17 @@ export const voice = async (
       )
     }
 
-    const start = await connect({
+    await connect({
       channelId: new_state.channel_id,
       memberId: new_state.user_id,
-      guildId: new_state.guild_id,
       db
     })
 
-    if (start) {
-      return await send_embed(
-        start.channel_id,
-        `${new_state.user_name}さん！${random_start_message()}`,
-        bot_token
-      )
-    }
-
-    return new Response('Changed')
+    return await send_embed(
+      new_state.channel_id,
+      `${new_state.user_name}さん！${random_start_message()}`,
+      bot_token
+    )
   }
 
   return new Response('No Action')

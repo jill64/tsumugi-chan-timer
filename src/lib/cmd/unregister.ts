@@ -24,7 +24,6 @@ export const unregister: Cmd = async (interaction, db) => {
   await disconnect({
     channelId: vcId,
     memberId: interaction.member.user.id,
-    guildId: interaction.guild_id,
     db
   })
 
