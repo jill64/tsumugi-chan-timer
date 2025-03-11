@@ -12,7 +12,7 @@ export const connect = async ({
   db: Kysely<Database>
 }) => {
   if (!channelId || !memberId) {
-    return
+    return false
   }
 
   const user = await getOrInsertUser(memberId, db)
@@ -20,7 +20,7 @@ export const connect = async ({
   const channels = new Set<string>(JSON.parse(user.channels))
 
   if (!channels.has(channelId)) {
-    return
+    return false
   }
 
   await db
@@ -28,4 +28,6 @@ export const connect = async ({
     .set('start', new Date().toISOString())
     .where('id', '=', memberId)
     .execute()
+
+  return true
 }
