@@ -14,7 +14,7 @@
     "dotenv": "16.4.7",
     "kysely": "0.27.6",
     "kysely-solarsystem": "0.1.4",
-    "typescript": "5.8.2",
+    "typescript": "5.8.3",
     "dayjs": "1.11.13",
     "eslint": "9.24.0",
     "discord-interactions": "4.1.1",
