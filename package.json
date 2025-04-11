@@ -11,7 +11,7 @@
     "@jill64/eslint-config-ts": "2.0.24",
     "@jill64/prettier-config": "1.0.0",
     "@types/node": "22.14.0",
-    "dotenv": "16.4.7",
+    "dotenv": "16.5.0",
     "kysely": "0.27.6",
     "kysely-solarsystem": "0.1.4",
     "typescript": "5.8.3",
