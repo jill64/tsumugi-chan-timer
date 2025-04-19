@@ -12,7 +12,7 @@
         "dotenv": "16.5.0",
         "eslint": "9.25.0",
         "itty-router": "5.0.18",
-        "kysely": "0.28.0",
+        "kysely": "0.28.1",
         "kysely-solarsystem": "0.1.4",
         "typescript": "5.8.3",
       },
@@ -221,7 +221,7 @@
 
     "keyv": ["keyv@4.5.4", "", { "dependencies": { "json-buffer": "3.0.1" } }, "sha512-oxVHkHR/EJf2CNXnWxRLW6mg7JyCCUcG0DtEGmL2ctUo1PNTin1PUil+r/+4r5MpVgC/fn1kjsx7mjSujKqIpw=="],
 
-    "kysely": ["kysely@0.28.0", "", {}, "sha512-hq8VcLy57Ww7oPTTVEOrT9ml+g8ehbbmEUkHmW4Xtubu+NHdKZi6SH6egmD4cjDhn3b/0s0h/6AjdPayOTJhNw=="],
+    "kysely": ["kysely@0.28.1", "", {}, "sha512-umkhsHB0y2JvI83DUtuYYTfvr063xTHTcr/k1z0E2Bg39zGiBcdDvlbP79YMcItn55pKQtD120sZmKa9jhCVtw=="],
 
     "kysely-solarsystem": ["kysely-solarsystem@0.1.4", "", { "dependencies": { "@jill64/attempt": "1.1.6", "kysely": "0.27.6" } }, "sha512-OwlPQ8QBC6DSeKLCnpQhL9FyRog6pwkt3sVoxP4XHie+G8nRFvTTMg9UGCmkfN9/9UaQh1sWKfA4RGvI+6x52w=="],
 
