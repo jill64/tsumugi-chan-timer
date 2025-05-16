@@ -16,7 +16,7 @@
     "kysely-solarsystem": "0.1.4",
     "typescript": "5.8.3",
     "dayjs": "1.11.13",
-    "eslint": "9.26.0",
+    "eslint": "9.27.0",
     "discord-interactions": "4.3.0",
     "itty-router": "5.0.18",
     "discord.js": "14.19.3"
