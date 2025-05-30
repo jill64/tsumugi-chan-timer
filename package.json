@@ -10,7 +10,7 @@
   "devDependencies": {
     "@jill64/eslint-config-ts": "2.0.34",
     "@jill64/prettier-config": "1.0.0",
-    "@types/node": "22.15.27",
+    "@types/node": "22.15.28",
     "dotenv": "16.5.0",
     "kysely": "0.28.2",
     "kysely-solarsystem": "0.1.4",
